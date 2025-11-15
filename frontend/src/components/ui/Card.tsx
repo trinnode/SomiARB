@@ -35,8 +35,13 @@ const cardVariants = cva(
   }
 );
 
+// Exclude conflicting motion props from HTML div props
+type CleanDivProps = Omit<React.HTMLAttributes<HTMLDivElement>,
+  'onAnimationStart' | 'onAnimationEnd' | 'onAnimationIteration' | 'onTransitionEnd' |
+  'onDragStart' | 'onDrag' | 'onDragEnd'>;
+
 export interface CardProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends CleanDivProps,
     VariantProps<typeof cardVariants> {
   header?: React.ReactNode;
   footer?: React.ReactNode;
@@ -57,15 +62,7 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
     children, 
     ...props 
   }, ref) => {
-    // Filter out conflicting props
-    const cleanProps = { ...props } as typeof props & Record<string, unknown>;
-    delete cleanProps.onAnimationStart;
-    delete cleanProps.onAnimationEnd;
-    delete cleanProps.onAnimationIteration;
-    delete cleanProps.onTransitionEnd;
-    delete cleanProps.onDragStart;
-    delete cleanProps.onDrag;
-    delete cleanProps.onDragEnd;
+    // Props are already clean due to TypeScript interface
 
     if (animated) {
       return (
@@ -83,7 +80,7 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
             whileHover: { scale: 1.02, y: -4 },
             whileTap: { scale: 0.98 }
           })}
-          {...cleanProps}
+          {...props}
         >
           {/* Animated border glow */}
           {glow && (
@@ -120,7 +117,7 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
           glow && 'shadow-2xl shadow-blue-500/20',
           className
         )}
-        {...cleanProps}
+        {...props}
       >
         {/* Animated border glow */}
         {glow && (

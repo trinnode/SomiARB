@@ -33,8 +33,13 @@ const buttonVariants = cva(
   }
 );
 
+// Exclude conflicting motion props from HTML button props
+type CleanButtonProps = Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 
+  'onAnimationStart' | 'onAnimationEnd' | 'onAnimationIteration' | 'onTransitionEnd' | 
+  'onDragStart' | 'onDrag' | 'onDragEnd'>;
+
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+  extends CleanButtonProps,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
   loading?: boolean;
@@ -58,15 +63,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   }, ref) => {
     const isDisabled = disabled || loading;
 
-    // Filter out problematic props that conflict between HTML and Motion
-    const cleanProps = { ...props } as typeof props & Record<string, unknown>;
-    delete cleanProps.onAnimationStart;
-    delete cleanProps.onAnimationEnd;
-    delete cleanProps.onAnimationIteration;
-    delete cleanProps.onTransitionEnd;
-    delete cleanProps.onDragStart;
-    delete cleanProps.onDrag;
-    delete cleanProps.onDragEnd;
+    // Props are already clean due to TypeScript interface
 
     return (
       <motion.button
@@ -79,7 +76,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={isDisabled}
         whileHover={!isDisabled ? { scale: 1.02 } : {}}
         whileTap={!isDisabled ? { scale: 0.98 } : {}}
-        {...cleanProps}
+        {...props}
       >
         {/* Animated background gradient */}
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
